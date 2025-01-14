@@ -10,11 +10,10 @@ from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 class FlowLoop(QWidget):
-    def __init__(self, name, input_device, output_device,loop_time):
+    def __init__(self, name, input_device,loop_time):
         super(TempLoop, self).__init__()
         
         self.input_device = input_device
-        self.output_device = output_device
         self.loop_time = loop_time
              
         self.setWindowTitle(name)
@@ -73,7 +72,7 @@ class FlowLoop(QWidget):
         self.flow_label.setText("Current flow: {:.3f}".format(current_flow))
         
         #Log temp and output
-        output = self.PID.update(current_flow)
+       # output = self.PID.update(current_flow)
         f_path = self.get_fname_write(time)
         
         # send data to yesnuffleupagus
@@ -87,6 +86,5 @@ class FlowLoop(QWidget):
         with open(f_path, 'a') as f:
             f.write("{}, {}, {}, {}\n".format(timeDisplay, current_flow, res, output))
         #To actuate:
-        self.output_device.set_val(output)
-        self.voltage_label.setText("flow: {:.3f}".format(output))
+        self.voltage_label.setText("flow: {:.3f}".format(current_flow))
         

@@ -29,3 +29,6 @@ class LabJackT7:
 # Example usage:
 # out = LabJackT7("192.168.1.120").read_flow("AIN0")
 # out = LabJackT7("192.168.1.120").read_flow("AIN2")
+
+
+

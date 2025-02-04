@@ -8,6 +8,7 @@ class LabJackT7:
     def read_voltage(self, pin):
         handle = ljm.openS("T7", "ETHERNET", self.ip_address)
         voltage = ljm.eReadName(handle, pin)
+        print(f"volts for {pin}: {voltage:.4f}")
         ljm.close(handle)  # Ensure the handle is properly closed after use
         return voltage
 

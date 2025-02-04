@@ -1,7 +1,7 @@
 import os
 from time import sleep
 from datetime import datetime
-from labjack_code import LabJackT7
+from labjack_flow import LabJackT7
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 import traceback

@@ -1,7 +1,7 @@
 import os
 from time import sleep
 from datetime import datetime
-from labjack_code import LabJackT7
+from labjack_cavity import LabJackT7_cavity
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 import traceback
@@ -22,7 +22,7 @@ PINS = ["AIN0"]  # List of pins to read
 
 def main():
     # Initialize LabJack device
-    device = LabJackT7('192.168.1.92')
+    device = LabJackT7_cavity('192.168.1.92')
 
     # Ensure log directory exists
     if not os.path.exists(LOG_DIR):

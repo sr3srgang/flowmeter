@@ -21,7 +21,7 @@ class LabJackT7:
         #print(f"Voltage read from {pin}: {volts:.4f}")
         
         
-        flow = volts * 0.25 + 0.25
+        flow = volts 
         
         
         

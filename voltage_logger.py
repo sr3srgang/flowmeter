@@ -18,7 +18,7 @@ MEASUREMENT = "VoltageLogger"
 TAG = "Channel"
 FIELD = "Flow at"
 LOG_INTERVAL = 15  # in seconds
-PINS = ["AIN2","AIN6","AIN4"]  # List of pins to read
+PINS = ["AIN8","AIN6","AIN4"]  # List of pins to read
 
 def main():
     # Initialize LabJack device

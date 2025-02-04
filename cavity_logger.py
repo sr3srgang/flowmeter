@@ -8,17 +8,17 @@ import traceback
 
 # User parameters
 LOG_DIR = "./logs/"
-LOG_FILE = "voltage.log"
-ERROR_FILE = "voltage_error.log"
+LOG_FILE = "cavity_voltage.log"
+ERROR_FILE = "cavity_voltage_error.log"
 INFLUX_URL = "http://yesnuffleupagus.colorado.edu:8086"
 INFLUX_TOKEN = "yelabtoken"
 INFLUX_ORG = "yelab"
 INFLUX_BUCKET = "sr3"
-MEASUREMENT = "VoltageLogger"
+MEASUREMENT = "cavity_VoltageLogger"
 TAG = "Channel"
-FIELD = "Flow at"
+FIELD = "Voltage at"
 LOG_INTERVAL = 15  # in seconds
-PINS = ["AIN2","AIN6","AIN4"]  # List of pins to read
+PINS = ["AIN0"]  # List of pins to read
 
 def main():
     # Initialize LabJack device
@@ -38,7 +38,7 @@ def main():
                 # Iterate over pins and read flow
                 for pin in PINS:
                     print(f"Reading from pin: {pin}")
-                    voltage = device.read_flow(pin)
+                    voltage = device.read_voltage(pin)
 
                     # Log voltage data
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

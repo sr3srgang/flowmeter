@@ -6,23 +6,25 @@ class LabJackT7:
         self.ip_address = ip_address
 
     def read_voltage(self, pin):
+        #print(f"Attempting to read {pin} from LabJack...")
+
         handle = ljm.openS("T7", "ETHERNET", self.ip_address)
+        #print("Successfully opened LabJack handle.")
         voltage = ljm.eReadName(handle, pin)
+        print(f"volts for {pin}: {voltage:.4f}")
         ljm.close(handle)  # Ensure the handle is properly closed after use
         return voltage
 
     def read_flow(self, pin):
+        print(f"Calling read_voltage for {pin}...")
         volts = self.read_voltage(pin)  # Pass pin to read_voltage
-        print(f"Voltage read from {pin}: {volts:.4f}")
+        #print(f"Voltage read from {pin}: {volts:.4f}")
         
-        if pin == "AIN0":
-            flow = volts * 0.25 + 0.25
-        elif pin == "AIN2":
-            flow = volts * 0.15 + 0.25
-        else:
-            raise ValueError(f"Flow equation not defined for pin: {pin}")
         
-        print(f"Calculated flow for {pin}: {flow:.4f}")
+        flow = volts * 0.25 + 0.25
+        
+        
+        
         return flow
 
 

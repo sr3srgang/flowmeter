@@ -10,14 +10,19 @@ Periodically read flow in pipes and upload it to Sr group's Grafana's DB
 3. Via USB, connect LabJack to a computer with Kipling downloaded 
 4. Connect LabJack to Ethernet
 5. Make appropriate analog connections between LabJack and flowmeters
-6. In voltage_logger.py, update list << PINS = ["AIN0", "AIN2"] >> with pins that have analog connections on the LabJack
-7. Update device = LabJackT7('192.168.1.92') with appropriate IP address for the LabJack
-8. Since different flowmeters have different voltage to flow calibrations, in labjack_code.py update 
+6. In `flow_logger.py`, update list `PINS = ["AIN0", "AIN2"]` with pins that have analog connections on the LabJack
+7. Update `device = LabJackT7('192.168.1.92')` with appropriate IP address for the LabJack
+8. Since different flowmeters have different voltage to flow calibrations, in `labjack_code.py` update
+    ```python
          if pin == "AIN0":
             flow = volts * 0.25 + 0.25
         elif pin == "AIN2":
             flow = volts * 0.15 + 0.25
-
+    ```
     with correct calibrations for appropriate pins
-9. run voltage_logger.py
+9. Open a terminal and activate `flowmeter` conda env:
+    ```bash
+    conda activate flowmeter
+    ```
+10. run `flow_logger.py`
 

@@ -14,74 +14,84 @@ INFLUX_URL = "http://yesnuffleupagus.colorado.edu:8086"
 INFLUX_TOKEN = "yelabtoken"
 INFLUX_ORG = "yelab"
 INFLUX_BUCKET = "sr3"
-MEASUREMENT = "VoltageLogger"
-TAG = "Channel"
-FIELD = "Flow at"
+MEASUREMENT = "FlowLogger"
 LOG_INTERVAL = 15  # in seconds
-PINS = ["AIN8","AIN6","AIN4"]  # List of pins to read
+PINS = ["AIN8", "AIN6", "AIN4"]
+
+# Define calibration functions (user-specified)
+CALIBRATION_FUNCTIONS = {
+    "AIN8": lambda V: 3.8 * V ,  # Example: replace with your actual function
+    "AIN6": lambda V: .2 * V ,
+    "AIN4": lambda V: 2.8 * V,
+}
+
+# Define serial numbers for each pin
+PIN_SERIALS = {
+    "AIN8": "19102083730",
+    "AIN6": "00291071",
+    "AIN4": "02083729",
+}
 
 def main():
     # Initialize LabJack device
     device = LabJackT7('192.168.1.92')
 
     # Ensure log directory exists
-    if not os.path.exists(LOG_DIR):
-        os.makedirs(LOG_DIR)
+    os.makedirs(LOG_DIR, exist_ok=True)
 
     try:
-        cycle = 0  # Keeps track of logging cycles
+        cycle = 0
         while True:
             try:
                 cycle += 1
                 print(f"Cycle {cycle}: Reading voltages...")
 
-                # Iterate over pins and read flow
                 for pin in PINS:
-                    print(f"Reading from pin: {pin}")
                     voltage = device.read_flow(pin)
-
-                    # Log voltage data
+                    flow = CALIBRATION_FUNCTIONS[pin](voltage)
+                    serial = PIN_SERIALS[pin]
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    log_entry = f"{timestamp}, Pin: {pin}, Voltage: {voltage:.4f} V"
-                    print(f"Cycle {cycle}: {log_entry}")
 
+                    log_entry = f"{timestamp}, Pin: {pin}, Serial: {serial}, Voltage: {voltage:.4f} V, Flow: {flow:.4f}"
+                    print(log_entry)
+
+                    # Log to file
                     with open(os.path.join(LOG_DIR, LOG_FILE), "a") as f:
                         f.write(log_entry + "\n")
 
-                    # Format data for InfluxDB
+                    # Prepare InfluxDB record
                     record = [
                         {
                             "measurement": MEASUREMENT,
-                            "tags": {TAG: pin},
-                            "fields": {FIELD: voltage},
+                            "tags": {
+                                "Channel": pin,
+                                "Serial": serial
+                            },
+                            "fields": {
+                                "Raw Voltage (V)": voltage,
+                                "Flow (calibrated)": flow
+                            },
                             "time": datetime.utcnow().isoformat()
                         }
                     ]
 
                     # Upload to InfluxDB
-                    #print(f"Cycle {cycle}: Uploading data for {pin} to InfluxDB...")
                     with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
                         with client.write_api(write_options=SYNCHRONOUS) as writer:
                             writer.write(bucket=INFLUX_BUCKET, record=record)
 
-                #print(f"Cycle {cycle}: Upload successful for all pins. Waiting for the next cycle...")
-
             except Exception as e:
-                # Log the error
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 error_message = f"{timestamp}, Error occurred: {str(e)}"
-                #print(f"Cycle {cycle}: {error_message}")
                 with open(os.path.join(LOG_DIR, ERROR_FILE), "a") as f:
                     f.write(error_message + "\n")
                     f.write("".join(traceback.format_exception(None, e, e.__traceback__)) + "\n")
 
-            # Wait until next interval
             sleep(LOG_INTERVAL)
 
     except KeyboardInterrupt:
         print("Logging stopped by user.")
     except Exception as e:
-        # Catch and log any unexpected errors
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         critical_error = f"{timestamp}, Critical Error: {str(e)}"
         print(critical_error)
@@ -90,7 +100,6 @@ def main():
             f.write("".join(traceback.format_exception(None, e, e.__traceback__)) + "\n")
     finally:
         print("Voltage logger terminated.")
-
 
 if __name__ == "__main__":
     main()
